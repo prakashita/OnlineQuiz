@@ -1,0 +1,336 @@
+import mysql.connector
+import datetime
+
+conn=mysql.connector.connect(
+    host='localhost',
+    user='root',
+    password='1234')
+
+if conn.is_connected():
+    print("Connection Established")
+else:
+    print("Connection Failed")
+
+mycursor=conn.cursor()
+
+#mycursor.execute("create database online_quiz_system")
+#mycursor.execute("use online_quiz_system")
+#mycursor.execute("create table question(question_id varchar(10) Primary key,question varchar(250)unique key not null,choice_i varchar(50) not null,choice_ii varchar(50) not null,choice_iii varchar(50) not null,choice_iv varchar(50) not null,correct_choice varchar(10) not null)")
+#mycursor.execute("create table users(user_id varchar(10) Primary key,user_name varchar(20) unique key not null,user_mail varchar(20) unique key not null)")
+#mycursor.execute("create table store (user_id varchar(20),user_name varchar(20), Marks char(2),dat datetime)")
+
+
+
+def ADD():
+    try:
+        mycursor.execute("use ONLINE_QUIZ_SYSTEM")
+        while True:
+            print("ADD QUESTIONS")
+            quest_id=input("Enter the question ID")
+            QUEST=input("Enter the question:")
+            opti=input("Enter option1:")
+            optii=input("Enter option2:")
+            optioniii=input("Enter option3:")
+            optioniv=input("Enter option4:")
+            rytoption=input("Enter right option:")
+            mycursor.execute("""insert into question set question_id='{}',question='{}',choice_i='{}',
+                             choice_ii='{}',choice_iii='{}',choice_iv='{}',correct_choice='{}'"""
+                             .format(quest_id,QUEST,opti,optii,optioniii,optioniv,rytoption))
+            conn.commit()
+            print("Question added successfully!!")
+            while True:
+                ch=input("Do you want to add more questions <y/n>:")
+                if ch in "Yy":
+                     ADD()
+                     conn.commit()
+                elif ch not in "NnYy":
+                     print("enter revelent option")
+                else :
+                    break
+            break
+    except Exception as e:
+        print("Database error:",e)
+
+def delete():
+    try:
+        mycursor.execute("use ONLINE_QUIZ_SYSTEM")
+        mycursor.execute("select* from question")
+        row=mycursor.fetchall()
+        for i in row:
+            print("DETAILS OF QUESTIONS ARE DISPLAYED BELOW--")
+            print(i[0],"""\t",i[1],"\t","option-1",i[2],"\t","option-2",i[3],"\t",
+                 "option-3",i[4],"\t","option-4",i[5],"\t"," correct option""",i[6])
+            print("----"*55)
+        qid=input("Enter the question_id of the record to be deleted:")
+        mycursor.execute("delete from question where question_id={}".format(qid))
+        conn.commit()
+        print("Record deleted successfully!!")
+    except Exception as e:
+        print("Database error:",e)
+
+def MODIFY():
+    try:
+        mycursor.execute("use online_quiz_system")
+        mycursor.execute("select* from question")
+        row=mycursor.fetchall()
+        for i in row:
+            print("DETAILS OF QUESTIONS ARE DISPLAYED BELOW--")
+            print(i[0],"""\t",i[1],"\t","option-1",i[2],"\t","option-2",i[3],
+     "\t","option-3",i[4],"\t","option-4",i[5],"\t"," correct option""",i[6])
+            print("----"*55)
+        while True:
+            qid=input("Enter question_id of the question to be updated:")
+            q=input("Enter Updated Question:")
+            qi=input("Enter Updated option1:")
+            qii=input("Enter Updated option2:")
+            qiii=input("Enter Updated option3:")
+            qiv=input("Enter Updated option4:")
+            qryt=input("Enter correct option:")
+            mycursor.execute("""update question set question='{}',choice_i='{}',
+            choice_ii='{}',choice_iii='{}',choice_iv='{}',correct_choice='{}'
+            where question_id='{}'""".format(q,qi,qii,qiii,qiv,qryt,qid))
+            conn.commit()
+            print("Question modified successfully!!")
+            while True:
+                ch=input("Do you want to modify more questions <y/n>:")
+                if ch in "Yy":
+                     MODIFY()
+                elif ch not in "NnYy":
+                     print("enter revelent option")
+                elif ch in "nN":
+                    break
+            break
+    except Exception as e:
+        print("Database error:",e)
+
+def DISPLAY():
+    try:
+        mycursor.execute("use online_quiz_system")
+        mycursor.execute("select* from question")
+        row=mycursor.fetchall()
+        mycursor.execute("select correct_choice from question")
+        CA=mycursor.fetchall() # list of tuples
+        #print(CA)
+        a=[]
+        global cr
+        global ca
+        cr=[]
+        ca=[]
+        for k in CA :
+             ca.append(k[0])
+        #print(ca)
+        for j in row:
+            a.append(j)
+            for i in a:
+                print("Question ID",i[0])
+                #print(i)
+                print("Question->" ,i[1])
+                print("A-" ,i[2])
+                print("B-" ,i[3])
+                print("C-" ,i[4])
+                print("D-" ,i[5])
+                while True:
+                    
+                   b = input("enter ur reponse")
+
+                   if b  not in "ABCDabcd" :
+                        print ("")
+                        
+                        print ("enter correct response")
+                        print ("")
+                        continue
+                   else:
+                        break
+                    
+                    
+                
+                cr.append(b)
+                
+                a.clear()
+        #print(CA)
+        #print(cr) 
+    except Exception as e:
+        print("Database error:",e)
+
+def RNU():
+    try:
+        mycursor.execute("use ONLINE_QUIZ_SYSTEM")
+        while True:
+            u_id=input("Enter your phone no.")
+            name=input("Enter your name:")
+            mail=input("Enter your email ID:")
+            mycursor.execute("""insert into users set user_id='{}',
+            user_name='{}',user_mail='{}'""".format(u_id,name,mail))
+            conn.commit()
+            print("Registered successfully!!")
+            break
+    except Exception as e:
+        print("Database error:",e)
+
+def DRU():
+    try:
+        mycursor.execute("use ONLINE_QUIZ_SYSTEM")
+        uid=input("Enter the Phone no. you are registered with:")
+        while True:
+                ch=input("Do you want to delete your registration <y/n>:")
+                if ch in "Yy":
+                     mycursor.execute("delete from users where user_id={}".format(uid))     
+                elif ch not in "NnYy":
+                     print("enter revelent option")
+                elif ch in "nN":
+                    break
+                break
+        conn.commit()
+        print("Record deleted successfully!!")
+    except Exception as e:
+        print("Database error:",e)
+
+def MRU():
+    try:
+        mycursor.execute("use online_quiz_system")
+        while True:
+            uid=input("Enter the Phone no. you are registered with:")
+            name=input("Enter Updated name:")
+            email=input("Enter Updated email id:")
+            mycursor.execute("update users set user_name='{}',user_mail='{}' where user_id='{}'".format(name,email,uid))
+            conn.commit()
+            print("Record modified successfully!!")
+            break
+    except Exception as e:
+        print("Database error:",e)
+
+def start():
+    try:
+        mycursor.execute("use online_quiz_system")
+        while True:
+            global uid
+            uid=input("Enter the Phone no. you are registered with:")
+            mycursor.execute("select user_id from users")
+            row=mycursor.fetchall()
+            a=[]
+            for i in row:
+                a.append(i[0])
+            #print(a)
+            if uid in a :
+                DISPLAY()
+                #report() 
+            else:
+                print("you are not registered")
+                
+            break
+
+        report()
+           
+    except Exception as e:
+        print("Database error:",e)
+
+        
+
+def  report():
+    try:
+        #uid=input("Enter the Phone no. you are registered with:")
+        mycursor.execute("use online_quiz_system")
+        mycursor.execute("select * from users where user_id ='{}'".format(uid))
+        row=mycursor.fetchall()
+        global q
+        q=[]
+        for k in row[0] :
+             q.append(k)
+        global dat
+        dat=datetime.datetime.now()
+        dat=dat.date()
+        print(" ")
+        print(" ")
+        print("Date of Examination->",dat)
+        print("Registration ID->",q[0])
+        print("Name->",q[1])
+        print("Email->",q[2])
+        mycursor.execute("create table perform (question_id varchar(10),Review varchar(20),dat datetime)")
+        A= "RIGHT"
+        B= "WRONG"
+        mycursor.execute("select question_id from question order by question_id")
+        R=mycursor.fetchall()
+        W=[]
+        for i in R:
+            W.append(i[0])   
+        try:
+            global count
+            count = 0
+            l=0
+            z=0
+            for k in cr:
+                #print(z)
+                if cr[z] in ca[z]:
+                    mycursor.execute( "insert into perform set  question_id ='{}' ,review='{}',dat='{}'".format(W[l],A,dat))
+                    count= count + 10
+                    l=l+1
+                    z=z+1
+                else :
+                    mycursor.execute( "insert into perform set  question_id ='{}' ,review='{}',dat='{}'".format(W[l],B,dat))
+                    l=l+1
+                    z=z+1         
+        except Exception as e:
+            print("Database error:",e)
+        mycursor.execute("select question_id,review from perform ")
+        row=mycursor.fetchall()
+        print("\tYOUR PERFORMANCE")  
+        for i in row:
+            print("\t",i[0],"\t",i[1])
+        print("**"*25)
+        print("TOTAL MARKS", count)
+        mycursor.execute( "insert into store set  user_id ='{}' ,user_name='{}',Marks='{}',dat='{}'".format(q[0],q[1],count,dat))
+        mycursor.execute("drop table perform")          
+    except Exception as e:
+        print("Database error:",e)
+
+
+
+         
+    
+            
+    
+
+    
+    
+    
+
+
+
+while True:
+    print("="*75)
+    print("\t\t MAIN MENU")
+    print("="*75)
+    print("\t\t1.ADD QUESTION")
+    print("\t\t2.DELETE QUESTIONS")
+    print("\t\t3.MODIFY QUESTIONS")
+    print("\t\t4.DISPLAY QUESTIONS")
+    print("\t\t5.REGISTER NEW USER")
+    print("\t\t6.DELETE REGISTERED USER ")
+    print("\t\t7.MODIFY REGISTERED USER")
+    print("\t\t8.START TEST")
+    print("\t\t9.EXIT")
+    print("="*75)
+    ch=int(input("Enter your choice(1 to 11):"))
+    print("="*75)
+
+    if ch==1:
+        ADD()
+    elif ch==2:
+        delete()
+    elif ch==3:
+        MODIFY()
+    elif ch==4:
+        DISPLAY()
+    elif ch==5:
+        RNU()
+    elif ch==6:
+        DRU()
+    elif ch==7:
+        MRU()
+    elif ch==8:
+        start()
+    else:
+        break
+    
+    
+       
